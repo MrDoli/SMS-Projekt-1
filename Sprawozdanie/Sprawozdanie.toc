@@ -1,0 +1,9 @@
+\babel@toc {polish}{}
+\contentsline {section}{\numberline {1}Zagadnienia i za\IeC {\l }o\IeC {\.z}enia projektowe}{3}
+\contentsline {section}{\numberline {2}Algorytm PID}{3}
+\contentsline {subsection}{\numberline {2.1}Om\IeC {\'o}wienie implementacji}{3}
+\contentsline {section}{\numberline {3}Algorytm DMC}{3}
+\contentsline {section}{\numberline {4}Por\IeC {\'o}wnanie najlepszych realizacji PID i DMC}{3}
+\contentsline {subsection}{\numberline {4.1}f) }{3}
+\contentsline {section}{\numberline {5}Testowanie}{3}
+\contentsline {section}{\numberline {6}Wnioski}{3}
