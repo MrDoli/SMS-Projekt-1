@@ -66,7 +66,7 @@ Przebieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
    $$
    T_{k} = 0.375
    $$
-   ![zieglerkp](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/zieglerkp.svg)
+   ![](Zdjecia/zieglerkp.svg)
 
    Po wykonaniu tych punktów uzyskujemy powyższy wykres na którym wyraźnie widać oscylacje niegasnące i niemalejące wyjścia regulatora. Okres oscylacji to czas pomiędzy dwoma sąsiadującymi wierzchołkami lub dołkami. 
 
@@ -76,11 +76,11 @@ Przebieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
    $$
      w zależności od regulatora który chcemy stosować P, PI, PID. My oczywiście wybiermay wzory dla PID.
 
-   ​								 ![TabelaPID](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/TabelaPID.PNG)
+   ​								 ![](Zdjecia/TabelaPID.PNG)
 
 4. Wyznaczone parametry powinny zapewnić niezłą jakość regulacji, gdy będziemy chcieli spróbować znaleźć lepszy regulator zaczęcie od nastawów wyznaczonych metodą Zieglera-Nicholsa będzie dobrym pomysłem.
 
-   ![ziegler_gotowy](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/ziegler_gotowy.svg)
+   ![](Zdjecia/ziegler_gotowy.svg)
 
    Wykres przedstawia przebiegi sygnałów dla nastawów wyliczonych według tabelki. Jeżeli nie sterujemy mocno skomplikowanym obiektem i amplituda zmian wartości zadanej nie jest zbyt duża. To jakość regulacji możemy uznać za satysfakcjonującą. Wyjście obiektu całkiem szybko dochodzi do wartości zadanej i jest stabilne (nie oscyluje). Zmiana wartości sygnału sterującego na początku jest akceptowalna, a w późniejszym czasie (od próbki 60) zmiany mają charakter skoków o nie dużych amplitudach. Jest to wynik zakłóceń i szumów występujących w układzie. 
 
@@ -91,6 +91,7 @@ Przebieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
    \\T_{i} = 0,1875
    \\T_{d} = 0,046875
    $$
+
 
 
 - ## Wyznaczanie nastawów regulatora metodą inżynierską 
@@ -108,7 +109,7 @@ $$
 K=0,5K_{k}
 $$
 
-parametr T_{i} dobieramy metodą prób i błędów, najlepiej jest zacząć w okolicach wartości wyznaczonych za pomocą metody Zieglera - Nicholsa. ![mardobry1](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/mardobry1.svg)
+parametr T_{i} dobieramy metodą prób i błędów, najlepiej jest zacząć w okolicach wartości wyznaczonych za pomocą metody Zieglera - Nicholsa. ![](Zdjecia/mardobry1.svg)
 
 Naszym wskaźnikiem jakości było jak najszybsze ustabilizowanie sygnału wokół wartości zadanej przy uwzględnieniu jak najmniejszych amplitud oscylacji. Nasz regulator najlepiej zachowywał się przy wartości 
 $$
@@ -122,7 +123,7 @@ Na pierwszy rzut oka widoczne stają się gasnące oscylacje, do ich wyeliminowa
    $$
    T_{d} = \dfrac{T_{k}}{5}
    $$
-   ![mar2](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/mar2.svg)
+   ![](Zdjecia/mar2.svg)
 
    Powyższy wykres pokazuje przebieg regulacji dla regulatora PID z nastawami dobranymi za pomocą metody inżynierskiej. 
 
@@ -144,9 +145,9 @@ Na pierwszy rzut oka widoczne stają się gasnące oscylacje, do ich wyeliminowa
 
   Podstawy teoretyczne i korzyści płynące z zastosowania rozwiązania *anti - windup* zostały opisane w podpunkcie ,,Omówienie i implementacja".
 
-  - $T_{v} = 1,0$ ![anwin1](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/anwin1.svg)
-  - $T_{v} = 5,0$ ![anwin2](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/anwin2.svg)
-  - $T_{v} = 0,8$![anwin3](F:/Studia/Semestr%205/SMS/Projekt_1/sms%20projekt%201-20181201T145916Z-001/sms%20projekt%201/Sprawozdanie/Zdjecia/anwin3.svg)
+  - $T_{v} = 1,0$ ![](Zdjecia/anwin1.svg)
+  - $T_{v} = 5,0$ ![](Zdjecia/anwin2.svg)
+  - $T_{v} = 0,8$![](Zdjecia/anwin3.svg)
 
   W celu zobaczenia różnic pomiędzy działaniem regulatora z *anti-windup* i bez ustawiamy *set-point* na bardzo dużą wartość (w okolicach maksimum dla danego obiektu). Na wszystkich trzech wykresach widzimy jak sterowanie jest ucinane dzięki czemu nie przekracza ono ograniczeń: max 2000 i min -2000.  W zależności od parametru $ T_{v} $ skracamy czas odcałkowywania. Widzimy, że regulacja najlepiej przebiega dla wartości $T_{v} = 5,0$. Przebieg sygnału wyjścia regulatora powoli, ale dochodzi do wartości zadanej. Dzięki ucinaniu wartości sygnału sterującego jego przebieg zawiera zdecydowanie mniejsze amplitudy, co jest dużo lepsze dla elementów wykonawczych. Dla wartości $T_{v}=1,0$ obserwujemy wyraźne opóźnienie, którego nie możemy zaakceptować, dlatego tą wartość odrzucamy. 
 
