@@ -73,9 +73,100 @@ Przbieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
 
 ## Implementacja
 
-Implementację regulatora *Dynamic Matrix Control* zaczęliśmy od analizy programów doktora Piotra Marusaka, udostępnionego nam w ramach przedmiotu *Diagnostyka procesów przemysłowych*. Zawiera on implementację regulatora DMC oraz symulację jego działania. Na ich podstawie napisaliśmy program w języku C.
+Implementację regulatora *Dynamic Matrix Control* zaczęliśmy od analizy programów doktora Piotra Marusaka, udostępnionego nam w ramach przedmiotu *Diagnostyka procesów przemysłowych*. Zawiera on implementację regulatora DMC w języku MATLAB oraz symulację jego działania. Na ich podstawie napisaliśmy program w języku C.
 
-TODO: opisać implementację
+### Typ `Dmc`
+
+Zaczęliśmy od stworzenia struktury reprezentującej regulator DMC oraz zapisaniu prototypów funkcji działających na tej strukturze.
+
+```c
+typedef struct Dmc {
+  float ke;
+  float *ku;
+  float sp;
+  float *deltaup;
+  float uk;
+  int D;
+} Dmc;
+
+void dmcInit(Dmc *dmc);
+float dmcCe(Dmc *dmc, float pv);
+```
+
+Elementy struktury to kolejno:
+
+Nazwa pola	Standardowe Oznaczenie	Opis
+----------	----------------------	----
+`ke`			$k_e$					współczynnik przy uchybie w prawie sterowania
+`ku`			$k_u(k - p)$				tablica współczynników przy przeszłych przyrostach sygnału sterującego w prawie sterowania
+`sp`			$y^{zad}$				wartość zadana wyjścia procesu
+`*deltaup`	$\Delta u(k - p)$		tablica przeszłych przyrostów sygnału sterującego
+`uk`			$u(k)$					aktualna wartość sygnału sterującego
+`D`			$D$						horyzont dynamiki, odczytany z odpowiedzi skokowej
+
+### Funckje operujące na typie `Dmc`
+
+Funkcja `dmcInit` alokuje pamięć dla pola `*deltaup` oraz zeruje pole `uk`.
+
+```c
+void dmcInit(Dmc *dmc) {
+    // calloc ~= malloc + initialize with zeros
+    dmc->deltaup = calloc((size_t) (dmc->D - 1), sizeof(float));
+
+    dmc->uk = 0;
+}
+```
+
+\newpage
+
+Funkcja `dmcCe` oblicza i zwraca następną wartość sygnału sterującego na podstawie aktualnego wyjścia procesu `pv`. W pierwszym bloku obliczany jest uchyb oraz pierwszy człon przyrostu sygnału sterującego w chwili obecnej. W drugim bloku do aktualnego przyrostu sterowania dodawane są poprzednie przyrosty pomnożone przez odpowiednie współczynniki. W trzecim bloku tablica `deltaup` przesuwana jest o jedno miejsce w prawo, aby zrobić miejsce na obliczony nowy przyrost. Następnie obliczony przyrost dodawany jest do poprzedniej wartości sygnału sterującego, aby otrzymać nową wartość sygnału sterującego. Na koniec wartość ta jest zwracana.
+
+```c
+float dmcCe(Dmc *dmc, float pv) {
+    float ek = dmc->sp - pv;
+    float deltauk = dmc->ke * ek;
+    int i;
+
+    for (i = 0; i < dmc->D - 1; ++i) {
+        deltauk -= dmc->ku[i] * dmc->deltaup[i];
+    }
+
+    // Shift deltaup[] right by one place
+    for (i = dmc->D - 1; i > 0; i--) {
+        dmc->deltaup[i] = dmc->deltaup[i - 1];
+    }
+
+    dmc->deltaup[0] = deltauk;
+
+    dmc->uk += dmc->deltaup[0];
+
+    return dmc->uk;
+}
+```
+
+### Użycie regulatora
+
+Poniżej przedstawiony jest przykład użycia powyższego regulatora.
+
+```c
+Dmc dmc;
+dmcInit(&dmc);
+dmc.D = 12;
+dmc.ke = 0.5729;
+dmc.sp = 10;
+
+// ku has D-1 elements
+float ku[11] = {
+    0.4704, 0.3293, 0.2306, 0.1615, 0.1131, 0.0793, 
+    0.0556, 0.0391, 0.0272, 0.0179, 0.0091
+};
+dmc.ku = ku;
+
+while (true) {
+    // ...
+    u = dmcCe(&dmc, y);
+}
+```
 
 ## Dobór parametrów $N$, $N_u$ i $\lambda$
 
@@ -89,8 +180,6 @@ Zgodnie z zaleceniami prowadzącego ćwiczenia, doboru parametrów regulatora do
 6. Zwiększać $\lambda$ aż jakość regulacji zacznie być niesatysfakcjonująca.
 7. Przyjąć $\lambda$ takie, jak przy ostatniej *dobrej* próbie.
 
-\newpage
-
 ## Dobór horyzontu predykcji $N$
 
 Dla dużych $N$ jakość regulacji była bardzo dobra. Nie występowało przeregulowanie, a czas regulacji był równy ok. 20 czasów próbkowania.
@@ -101,8 +190,6 @@ Dla dużych $N$ jakość regulacji była bardzo dobra. Nie występowało przereg
 ![](plots/dmc/N/N_is_12.png){ width=50% }
 ![](plots/dmc/N/N_is_11.png){ width=50% }
 
-\newpage
-
 Dla $N <= 10$ na wykresie zaczęło pojawiać się przeregulowanie, a czas regulacji wzrastał.
 
 ![](plots/dmc/N/N_is_10.png){ width=50% }
@@ -110,8 +197,6 @@ Dla $N <= 10$ na wykresie zaczęło pojawiać się przeregulowanie, a czas regul
 ![](plots/dmc/N/N_is_6.png){ width=50% }
 
 Ustaliliśmy, że punktem załamania jakości regulacji jest $N = 11$, zatem tę wartość wybraliśmy do dalszych rozważań.
-
-\newpage
 
 ## Dobór horyzontu sterowania $N_u$
 
@@ -121,6 +206,8 @@ Wpływ horyzontu sterowania na jakość regulacji nie był duży. Z tego powodu 
 ![](plots/dmc/Nu/Nu_is_3.png){ width=50% }
 ![](plots/dmc/Nu/Nu_is_2.png){ width=50% }
 ![](plots/dmc/Nu/Nu_is_1.png){ width=50% }
+
+\newpage
 
 ## Dobór kary za zmiany sterowania $\lambda$
 
