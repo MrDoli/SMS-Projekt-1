@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6600 64-bit) (preloaded format=pdflatex 2018.3.14)  1 DEC 2018 00:16
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6600 64-bit) (preloaded format=pdflatex 2018.3.14)  2 DEC 2018 00:05
 entering extended mode
 **./Sprawozdanie.tex
 (Sprawozdanie.tex
@@ -920,7 +920,46 @@ Package: l3keys2e 2018-04-30 LaTeX2e option processing using LaTeX3 keys
 
 ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\translator\translator.sty"
 Package: translator 2018/01/04 v1.12 Easy translation of strings in LaTeX
-)) (Sprawozdanie.aux)
+)) ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\svg\svg.sty"
+Package: svg 2018/11/12 v2.02b (include SVG pictures)
+
+("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\koma-script\scrbase.sty"
+Package: scrbase 2018/03/30 v3.25 KOMA-Script package (KOMA-Script-independent 
+basics and keyval usage)
+
+("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\koma-script\scrlfile.sty"
+Package: scrlfile 2018/03/30 v3.25 KOMA-Script package (loading files)
+)) ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\oberdiek\ifluatex.sty"
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\ifxetex\ifxetex.sty"
+Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
+)
+("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\oberdiek\pdftexcmds.sty"
+Package: pdftexcmds 2018/01/21 v0.26 Utility functions of pdfTeX for LuaTeX (HO
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+) ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\tools\shellesc.sty"
+Package: shellesc 2016/06/07 v0.02a unified shell escape interface for LaTeX
+Package shellesc Info: Restricted shell escape enabled on input line 69.
+)
+("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\trimspaces\trimspaces.sty"
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)
+\svg@box=\box54
+\c@svg@param@lastpage=\count280
+\c@svg@param@currpage=\count281
+) ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\oberdiek\transparent.sty"
+Package: transparent 2016/05/16 v1.1 Transparency via pdfTeX's color stack (HO)
+
+("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\oberdiek\auxhook.sty"
+Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
+))
+(Sprawozdanie.aux)
 \openout1 = `Sprawozdanie.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
@@ -938,16 +977,16 @@ LaTeX Font Info:    ... okay on input line 30.
 
 ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count280
+\scratchcounter=\count282
 \scratchdimen=\dimen179
-\scratchbox=\box54
-\nofMPsegments=\count281
-\nofMParguments=\count282
+\scratchbox=\box55
+\nofMPsegments=\count283
+\nofMParguments=\count284
 \everyMPshowfont=\toks28
-\MPscratchCnt=\count283
+\MPscratchCnt=\count285
 \MPscratchDim=\dimen180
-\MPnumerator=\count284
-\makeMPintoPDFobject=\count285
+\MPnumerator=\count286
+\makeMPintoPDFobject=\count287
 \everyMPtoPDFconversion=\toks29
 ) ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\oberdiek\epstopdf-base.st
 y"
@@ -965,24 +1004,11 @@ Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
 
 ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\oberdiek\etexcmds.sty"
 Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
-
-("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\oberdiek\ifluatex.sty"
-Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
-)
 Package etexcmds Info: Could not find \expanded.
 (etexcmds)             That can mean that you are not using pdfTeX 1.50 or
 (etexcmds)             that some package has redefined \expanded.
 (etexcmds)             In the latter case, load this package earlier.
-))) ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\oberdiek\pdftexcmds.s
-ty"
-Package: pdftexcmds 2018/01/21 v0.26 Utility functions of pdfTeX for LuaTeX (HO
-)
-Package pdftexcmds Info: LuaTeX not detected.
-Package pdftexcmds Info: \pdf@primitive is available.
-Package pdftexcmds Info: \pdf@ifprimitive is available.
-Package pdftexcmds Info: \pdfdraftmode found.
-)
+)))
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 38.
 Package grfext Info: Graphics extension search list:
@@ -990,17 +1016,15 @@ Package grfext Info: Graphics extension search list:
 G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 )
-\AtBeginShipoutBox=\box55
+\AtBeginShipoutBox=\box56
  ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\oberdiek\pdflscape.sty"
 Package: pdflscape 2016/05/14 v0.11 Display of landscape pages in PDF (HO)
+
 ("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\latex\graphics\lscape.sty"
 Package: lscape 2000/10/22 v3.01 Landscape Pages (DPC)
 )
 Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
-
-("F:\Program Files (x86)\Latex\MiKTeX 2.9\tex\generic\ifxetex\ifxetex.sty"
-Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
-))
+)
 Now handling font encoding TS1 ...
 ... processing UTF-8 mapping file for font encoding TS1
 
@@ -1112,19 +1136,53 @@ Underfull \hbox (badness 10000) in paragraph at lines 56--57
  []
 
 
-Overfull \hbox (4.55003pt too wide) in paragraph at lines 73--73
+Package svg Warning: You didn't enable `shell escape' (or `write18')
+(svg)                so it wasn't possible to launch the Inkscape export
+(svg)                for `Zdjecia/zieglerkp.svg' on input line 73.
+
+
+! Package svg Error: File `zieglerkp_svg-tex.pdf' is missing.
+
+See the svg package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.73 \includesvg{Zdjecia/zieglerkp.svg}
+                                       
+Did you run the export with Inkscape? There's no file
+`./svg-inkscape/zieglerkp_svg-tex.pdf'
+although `Zdjecia/zieglerkp.svg' was found.
+
+
+! Package svg Error: File `zieglerkp_svg-tex.pdf_tex' is missing.
+
+See the svg package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.73 \includesvg{Zdjecia/zieglerkp.svg}
+                                       
+Did you run the export with Inkscape? There's no file
+`./svg-inkscape/zieglerkp_svg-tex.pdf_tex'
+although `Zdjecia/zieglerkp.svg' was found.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Overfull \hbox (4.55003pt too wide) in paragraph at lines 78--78
 []\T1/cmr/bx/n/17.28 Porównanie naj-lep-szych re-ali-za-cji PID i DMC 
  []
 
 [4] [5] (Sprawozdanie.aux) ) 
 Here is how much of TeX's memory you used:
- 16109 strings out of 493303
- 315478 string characters out of 3133669
- 349557 words of memory out of 3000000
- 19472 multiletter control sequences out of 15000+200000
+ 16880 strings out of 493303
+ 331678 string characters out of 3133669
+ 386342 words of memory out of 3000000
+ 20213 multiletter control sequences out of 15000+200000
  544272 words of font info for 60 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,6n,39p,10366b,382s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 49i,6n,58p,10382b,382s stack positions out of 5000i,500n,10000p,200000b,50000s
  <C:\Users\Marcin\AppData\Local\MiKTeX\2.9\fonts\pk
 \ljfour\jknappen\ec\dpi600\ecti1200.pk> <C:\Users\Marcin\AppData\Local\MiKTeX\2
 .9\fonts\pk\ljfour\jknappen\ec\dpi600\ectt1200.pk> <C:\Users\Marcin\AppData\Loc
@@ -1139,9 +1197,9 @@ onts/type1/public/amsfonts/cm/cmmi12.pfb><F:/Program Files (x86)/Latex/MiKTeX 2
 .9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><F:/Program Files (x86)/Latex/MiKTe
 X 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><F:/Program Files (x86)/Latex/Mi
 KTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on Sprawozdanie.pdf (5 pages, 138560 bytes).
+Output written on Sprawozdanie.pdf (5 pages, 139326 bytes).
 PDF statistics:
- 316 PDF objects out of 1000 (max. 8388607)
+ 317 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -10,7 +10,7 @@
 \usepackage{pdfpages}
 \usepackage{enumerate}
 \usepackage{siunitx}
-
+\usepackage{svg}
 
 \begin{titlepage}
 \author{
@@ -64,9 +64,14 @@ Przbieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
 \begin{enumerate}
 \item Implementujemy regulator typu P.
 \item Wartość wzmocnienia K dobieramy tak aby wyjście obiektu regulacji miało charakter oscylacyjny (nierosnący, niemalejący). Przyjmujemy wzmocnienie krytyczne $K_{u} = K$. Odczytujemy jeszcze okres oscylacji $T_{u}$.
-\item Używając tabelki wyliczamy parametry $K, T_{I}, T_{D}$ w zależności od regulatora który chcemy stosować P, PI, PID. My oczywiście wybiermay wzory dla PID. 
 
+\item Używając tabelki wyliczamy parametry $K, T_{I}, T_{D}$ w zależności od regulatora który chcemy stosować P, PI, PID. My oczywiście wybiermay wzory dla PID. 
+\item Wyznaczone parametry powinny zapewnić niezłą jakość regulacji, gdy będziemy chcieli spróbować znaleźć lepszy regulator zaczęcie od nastawów wyznaczonych metodą Zieglera-Nicholsa będzie dobrym pomysłem.
 \end{enumerate}
+
+\begin{figure}[h!]
+\includesvg{Zdjecia/zieglerkp.svg}
+\end{figure}
 
 \section{Algorytm DMC}
 
