@@ -150,7 +150,6 @@ Poniżej przedstawiony jest przykład użycia powyższego regulatora.
 
 ```c
 Dmc dmc;
-dmcInit(&dmc);
 dmc.D = 12;
 dmc.ke = 0.5729;
 dmc.sp = 10;
@@ -161,6 +160,8 @@ float ku[11] = {
     0.0556, 0.0391, 0.0272, 0.0179, 0.0091
 };
 dmc.ku = ku;
+
+dmcInit(&dmc);
 
 while (true) {
     // ...
@@ -217,3 +218,36 @@ Parametr $\Lambda$ bardzo silnie wpływał na czas regulacji, zgodnie z naszymi 
 ![](plots/dmc/Lambda/Lambda_is_2.png){ width=50% }
 ![](plots/dmc/Lambda/Lambda_is_5.png){ width=50% }
 ![](plots/dmc/Lambda/Lambda_is_60.png){ width=50% }
+
+# Porównanie dobranych regulatorów PID i DMC
+
+## Wpływ zakłóceń na regulację
+
+![](plots/pid/disturbance2.png){ width=50% }
+![](plots/pid/disturbance.png){ width=50% }
+![](plots/dmc/disturbance.png){ width=50% }
+
+Z powyższych przebiegów wnioskujemy, że dobrany przez nas metodą inżynierską regulator PID lepiej radzi sobie z nieuwzględnionymi w układzie regulacji zakłóceniami niż regulator DMC. Ma to związek z bardzo dużym czasem różniczkowania ($T_d = 0.075$) w porównaniu do wstępnych nastaw dobranych metodą *Zieglera-Nicholsa* ($T_d = 0.047$). Duży udział różniczki w tym regulatorze można rozpoznać po bardzo silnej reakcji na szum pomiarowy (bardzo nieregularny przebieg sygnału sterującego). Gdy duży jest udział różniczki, regulator szybko reaguje na niespodziewany skok wyjścia obiektu (na skutek zakłócenia), ponieważ wtedy różniczka z uchybu drastycznie zmienia się na krótki czas. Powoduje to, że zakłócenie jest natychmiast kontrowane chwilowym obniżeniem (w tym przypadku) sygnału sterującego.
+
+## Przeregulowanie, czas regulacji i oscylacje
+
+
+![](plots/pid/reg.png){ width=50% }
+![](plots/dmc/reg.png){ width=50% }
+![](plots/ce.png){ width=50% }
+![](plots/pv.png){ width=50% }
+
+Parametry regulacji odczytaliśmy z wykresów za pomocą kursora.
+
+	Przeregulowanie	Czas regulacji[^1]	Oscylacje[^2]
+---	---------------	--------------		---------
+PID		11%				13				widoczne
+DMC		0%[^3]			17				niewidoczne
+
+Jak widać z powyższej tabeli, regulator *DMC* zapewnia lepszą jakość regulacji. Przy małym zwiększeniu czasu regulacji względem *PID*, otrzymujemy brak przeregulowania oraz gładkie przebiegi sygnału sterującego oraz wyjścia procesu.
+
+Takie wyniki regulatora *DMC* zawdzięczamy temu, że jest to regulator predykcyjny. Pozwalają one na tworzenie gładkich przebiegów, ponieważ korzystają z modelu obiektu.
+
+[^1]: Zmierzony dla $\epsilon = 20$.
+[^2]: Ocenione wizualnie z wykresu.
+[^3]: Przeregulowanie było na tyle małe, że nie udało nam się odróżnić go od szumu pomiarowego.
