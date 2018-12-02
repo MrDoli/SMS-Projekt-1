@@ -1,4 +1,6 @@
-
+% SMS -- Projekt 1
+% Krystian Chachuła, Marcin Dolicher
+% 2. grudnia 2018
 
 # Zagadnienia i założenia projektowe
 
@@ -30,6 +32,7 @@ W każdym wywołoniu funkcji dokonujemy następujących obliczeń:
    $$
 
 5. Następuje zapisanie wartości z stanu *k* jako wartości dla stanu *k-1* (w naszym kodzie zmienne z poprzedniego stanu wyrażone są za pomocą przedrostka prev)
+
 
 Oprócz tych kroków do naszego algorytmu zastosowaliśmy rozwiązanie anti-windup. Rozwiązania tego używamy w przypadku gdy zmienna sterowania osiąga wartość graniczną urządzenia wykonawczego. Wiemy, że nie ma sensu zadawać większej wartości sygnału sterowania niż element wykonawczy jest w stanie zrealizować. W takiej sytuacji przerywamy pętlę sprzężenia zwrotnego i system zaczyna pracę w pętli otwartej. Takie rozwiązanie zapobiega ,,nawijaniu'' członu całkującego, czyli osiąganiu nadzwyczaj dużych wartości członu całkującego co prowadzi do ogromnego spowolnienia działania regulatora, a w skrajnych przypadkach do jego rozregulowania. 
 
@@ -64,63 +67,66 @@ Przbieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
 
    Wykres przedstawia przebiegi sygnałów dla nastawów wyliczonych według tabelki. Jeżeli nie sterujemy mocno skomplikowanym obiektem i amplituda zmian wartości zadanej nie jest zbyt duża. To jakość regulacji możemy uznać za satysfakcjonującą. Wyjście obiektu bardzo szybko dochodzi do wartości zadanej i jest stabilne (nie oscyluje). Zmiana wartości sygnału sterującego na początku jest akceptowalna, a w późniejszym czasie (od próbki 60) zmiany mają charakter skoków o nie dużych amplitudach. Jest to wynik zakłóceń i szumów występujących w układzie. 
 
+\newpage
+
 # Algorytm DMC
 
-# Porównanie najlepszych realizacji PID i DMC
+## Implementacja
 
-# Wnioski
+Implementację regulatora *Dynamic Matrix Control* zaczęliśmy od analizy programów doktora Piotra Marusaka, udostępnionego nam w ramach przedmiotu *Diagnostyka procesów przemysłowych*. Zawiera on implementację regulatora DMC oraz symulację jego działania. Na ich podstawie napisaliśmy program w języku C.
 
+TODO: opisać implementację
 
+## Dobór parametrów $N$, $N_u$ i $\lambda$
 
+Zgodnie z zaleceniami prowadzącego ćwiczenia, doboru parametrów regulatora dokonywaliśmy zgodnie z poniższym algorytmem.
 
+1. Przyjąć $N = N_u = D$ oraz $\lambda = 1$
+2. Zmniejszać $N = N_u$ aż jakość regulacji zacznie być niesatysfakcjonująca.
+3. Przyjąć $N$ takie, jak przy ostatniej *dobrej* próbie.
+4. Zmniejszać $N_u$ aż jakość regulacji zacznie być niesatysfakcjonująca.
+5. Przyjąć $N_u$ takie, jak przy ostatniej *dobrej* próbie.
+6. Zwiększać $\lambda$ aż jakość regulacji zacznie być niesatysfakcjonująca.
+7. Przyjąć $\lambda$ takie, jak przy ostatniej *dobrej* próbie.
 
+\newpage
 
+## Dobór horyzontu predykcji $N$
 
+Dla dużych $N$ jakość regulacji była bardzo dobra. Nie występowało przeregulowanie, a czas regulacji był równy ok. 20 czasów próbkowania.
 
+![](plots/dmc/N/N_is_70.png){ width=50% }
+![](plots/dmc/N/N_is_50.png){ width=50% }
+![](plots/dmc/N/N_is_25.png){ width=50% }
+![](plots/dmc/N/N_is_12.png){ width=50% }
+![](plots/dmc/N/N_is_11.png){ width=50% }
 
+\newpage
 
+Dla $N <= 10$ na wykresie zaczęło pojawiać się przeregulowanie, a czas regulacji wzrastał.
 
+![](plots/dmc/N/N_is_10.png){ width=50% }
+![](plots/dmc/N/N_is_9.png){ width=50% }
+![](plots/dmc/N/N_is_6.png){ width=50% }
 
+Ustaliliśmy, że punktem załamania jakości regulacji jest $N = 11$, zatem tę wartość wybraliśmy do dalszych rozważań.
 
+\newpage
 
+## Dobór horyzontu sterowania $N_u$
 
+Wpływ horyzontu sterowania na jakość regulacji nie był duży. Z tego powodu wybraliśmy $N_u = 1$, aby zmniejszyć ilość obliczeń wykonywanych co okres próbkowania regulatora. Decyzja ta nie spowodowała spadku jakości regulacji. Jedyną zmianą było nieznaczne zwiększenie się maksymalnej wartości sygnału sterującego z $376.5$ na $398.2$.
 
+![](plots/dmc/Nu/Nu_is_4.png){ width=50% }
+![](plots/dmc/Nu/Nu_is_3.png){ width=50% }
+![](plots/dmc/Nu/Nu_is_2.png){ width=50% }
+![](plots/dmc/Nu/Nu_is_1.png){ width=50% }
 
+## Dobór kary za zmiany sterowania $\lambda$
 
+Parametr $\Lambda$ bardzo silnie wpływał na czas regulacji, zgodnie z naszymi oczekiwaniami. Gdy go zwiększaliśmy, czas regulacji rósł. Obiekt z którym mieliśmy do czynienia był obiektem o szybkiej dynamice. Z tego powodu, oraz ponieważ sygnał sterujący z łatwością mieścił się w ograniczeniach, zdecydowaliśmy, że nie będziemy tak mocno ograniczać jego zmian. Ustaliliśmy że najlepszą jakość regulacji nasz regulator daje nam przy $\Lambda = 1$.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\end{document}
-
+![](plots/dmc/Nu/Nu_is_1.png){ width=50% }
+![](plots/dmc/Lambda/Lambda_is_2.png){ width=50% }
+![](plots/dmc/Lambda/Lambda_is_5.png){ width=50% }
+![](plots/dmc/Lambda/Lambda_is_60.png){ width=50% }
