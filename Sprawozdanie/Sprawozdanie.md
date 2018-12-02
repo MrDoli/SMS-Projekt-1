@@ -4,44 +4,112 @@
 
 # Zagadnienia i założenia projektowe
 
-Postawione przed nami zadanie polegało na zaprojektowaniu regulatora PID i DMC, które sterują obiektem zrealizowanym na mikrokontrolerach z serii STM32. Powinniśmy tak manipulować sygnałem wejściowym procesu *u*, aby wartość sygnału wyjściowego procesu (regulowanego) *y* była możliwie bliska wartości zadanej *y^{zad}*. Wartość uchybu *e=y^{zad} - y* powinna być jak najmniejsza. Wyniki uzyskane podczas eksperymentów zostaną porównane i poddane krytycznej weryfikacji. 
+Postawione przed nami zadanie polegało na zaprojektowaniu regulatora PID i DMC, które sterują obiektem zrealizowanym na mikrokontrolerach z serii STM32. Powinniśmy tak manipulować sygnałem wejściowym procesu $u$, aby wartość sygnału wyjściowego procesu (regulowanego) $y$ była możliwie bliska wartości zadanej $y^{zad}$. Wartość uchybu $e=y^{zad} - y$ powinna być jak najmniejsza. Wyniki uzyskane podczas eksperymentów zostaną porównane i poddane krytycznej weryfikacji. 
 
-## Omówienie implementacji
+# Regulator PID
+
+## Implementacja
 
 Tradycyjnie regulację za pomocą algorytmu PID realizujemy za pomocą trzech członów proporcjonalnego, całkującego i różniczkującego. Człon proporcjonalny powoduje wzrost wartości sterowania wraz z wzrostem uchybu, całkujący zwiększa wartość sygnału sterującego wraz z akumulowanym uchybem, a dla różniczkującego wraz z wzrostem uchybu, wzrasta wartość sygnału sterującego. 
 
-Implementacji algorytmu dokonaliśmy w plikach *Pid.c* i *Pid.h*. Parametry PID-a zostały w kodzie zaprezentowane jako struktura *Pid*. W pliku *main.c* zadajemy wartości odpowiednim parametrom z struktury PID. Wymagane obliczenia w algorytmie są realizowane za pomocą funkcji float pidCe(Pid *pid, float pv), której argumentami są struktura z wartościami naszego PID-a i zmienna *pv - process value*, czyli naszą wartość zadaną, a funkcja zwraca nam sygnał sterujący. 
+Parametry PID-a zostały w kodzie zaprezentowane jako struktura `Pid`. W pliku `main.c` zadajemy wartości odpowiednim parametrom z struktury PID. Wymagane obliczenia w algorytmie są realizowane za pomocą funkcji `float pidCe(Pid *pid, float pv)`, której argumentami są struktura z wartościami naszego PID-a i zmienna `pv` -- *process value*, czyli naszą wartość zadaną, a funkcja zwraca nam sygnał sterujący. 
 
-W każdym wywołoniu funkcji dokonujemy następujących obliczeń: 
+W każdym wywołaniu funkcji dokonujemy następujących obliczeń: 
 
-1. Wyliczamy uchyb na podstawie wzoru: e(k) = y^{zad}(k) - y(k)
+1. Wyliczamy uchyb na podstawie wzoru: $e(k) = y^{zad}(k) - y(k)$
 
-2. Wartość członu proporcjonalnego  
-   $$
-   u(P)=Ke(k)
-   $$
+2. Wartość członu proporcjonalnego: $u(P)=Ke(k)$
 
-3. Wartość członu całkującego 
-   $$
-   u_{I}(k) = u_{I}(k-1) + \dfrac{K}{T_{I}}T\dfrac{e(k-1)+e(k)}{2}
-   $$
+3. Wartość członu całkującego: $u_{I}(k) = u_{I}(k-1) + \dfrac{K}{T_{I}}T\dfrac{e(k-1)+e(k)}{2}$
 
-4. _Wartość członu różniczkującego _
-   $$
-   u_{D}(k) = KT_{D}\dfrac{e(k)-e(k-1)}{T}
-   $$
+4. Wartość członu różniczkującego $u_{D}(k) = KT_{D}\dfrac{e(k)-e(k-1)}{T}$
 
-5. Następuje zapisanie wartości z stanu *k* jako wartości dla stanu *k-1* (w naszym kodzie zmienne z poprzedniego stanu wyrażone są za pomocą przedrostka prev)
+5. Następuje zapisanie wartości z stanu $k$ jako wartości dla stanu $k-1$ (w naszym kodzie zmienne z poprzedniego stanu wyrażone są za pomocą przedrostka prev)
 
+Oprócz tych kroków do naszego algorytmu zastosowaliśmy rozwiązanie anti-windup. Rozwiązania tego używamy w przypadku gdy zmienna sterowania osiąga wartość graniczną urządzenia wykonawczego i ją przekracza. Wiemy, że nie ma sensu zadawać większej wartości sygnału sterowania niż element wykonawczy jest w stanie zrealizować. Aby uniknąć takich sytuacji stosujemy algorytm, który pomniejsza składową całkującą wartości sterowania o pewną stałą przemnożoną przez różnicę między nasyconą wartością sygnału sterującego, a wartością wyznaczoną przez regulator. Wprowadzamy do członu całkującego dodatkowy element proporcjonalny do różnicy między faktycznym sygnałem sterującym, a oczekiwanym. Równanie takie prezentuje się następująco :
+$$
+u_{I}(k) = u_{I}(k-1) + \dfrac{K}{T_{I}}T\dfrac{e(k-1)+e(k)}{2} +\dfrac{T}{T_{v}}(u_{w}(k-1)-u(k-1))
+$$
+gdzie
 
-Oprócz tych kroków do naszego algorytmu zastosowaliśmy rozwiązanie anti-windup. Rozwiązania tego używamy w przypadku gdy zmienna sterowania osiąga wartość graniczną urządzenia wykonawczego. Wiemy, że nie ma sensu zadawać większej wartości sygnału sterowania niż element wykonawczy jest w stanie zrealizować. W takiej sytuacji przerywamy pętlę sprzężenia zwrotnego i system zaczyna pracę w pętli otwartej. Takie rozwiązanie zapobiega ,,nawijaniu'' członu całkującego, czyli osiąganiu nadzwyczaj dużych wartości członu całkującego co prowadzi do ogromnego spowolnienia działania regulatora, a w skrajnych przypadkach do jego rozregulowania. 
+- $T_{v}$ - parametr algorytmu *anti-windup*
+- $u_{w}(k-1)$ - sterowanie aplikowane do procesu
+- u(k-1) - sterowanie wyznaczone poprzez algorytm PID 
 
-Odp skokowa !!!!!!!!!!!!!!!!??????????????????????
-Dostrajanie regulatora odbywało się na zasadzie pozyskiwania odpowiedz skokowej. Obserwując w jaki sposób sygnał sterujący generowany przez regulator osiąga wartość zadaną podczas skoku dokonywaliśmy oceny regulacji. W ten sposoób wybieraliśmy najlepsze nastawy dla regulatora. 
+Takie rozwiązanie zapobiega ,,nawijaniu'' członu całkującego, czyli osiąganiu nadzwyczaj dużych wartości członu całkującego co prowadzi do ogromnego spowolnienia działania regulatora, a w skrajnych przypadkach do jego rozregulowania. Dodatkowo ogranicza przesterowanie i polepsza reakcję algorytmu regulacji w przypadku osiągnięcia ograniczeń 
 
-## Wyznaczanie nastawów regulatora metodą Zieglera-Nicholsa
+### Kod
 
-Przbieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
+Stworzyliśmy specjalną strukturę z wszystkimi parametrami PID wraz z dwoma funkcjami, jedna opowiada za inicjalizację PID, a druga już za wykonywanie algorytmu. 
+
+```c
+typedef struct Pid {
+    // User Defined Parameters
+    double k;     // PID gain
+    double ti;    // PID integration time
+    double td;    // PID derivative time
+    double tv;    // Anti-windup
+    double t;     // Sampling period
+    double sp;    // Setpoint
+    double min_u;
+    double max_u;
+
+    // Private fields, please do not touch
+    double prev_ui;    // u_i(k - 1)
+    double prev_u;
+    double prev_u_constrained;
+    double prev_e;     // e(k - 1)
+} Pid;
+
+void pidInit(Pid *pid);
+double pidCe(Pid *pid, double pv);
+```
+
+Nazwy zmiennych zostały odpowiednio skomentowane, dlatego przejdziemy do implementacji funkcji. 
+
+\newpage
+
+```c
+void pidInit(Pid *pid) {
+    pid->prev_ui = 0;
+    pid->prev_e = 0;
+    pid->prev_u_constrained = 0;
+    pid->prev_u = 0;
+}
+
+double pidCe(Pid *pid, double pv) {
+    double e = pid->sp - pv;
+
+    double up = pid->k * e;
+
+    double ui = 0;
+    if (pid->ti != 0) {
+        ui += pid->prev_ui;
+        ui += pid->k * pid->t * (pid->prev_e + e) / pid->ti / 2.0;
+    }
+    if (pid->tv != 0) {  // Anti-windup
+        ui += pid->ti * (pid->prev_u_constrained - pid->prev_u) / pid->tv;
+    }
+
+    double ud = pid->k * pid->td * (e - pid->prev_e) / pid->t;
+
+    pid->prev_ui = ui;
+    pid->prev_e = e;
+
+    pid->prev_u = up + ui + ud;
+    pid->prev_u_constrained = fmax(pid->min_u, fmin(pid->prev_u, pid->max_u));
+
+    return pid->prev_u_constrained;
+}
+```
+
+`void pidInit(Pid* **pid)` - służy do inicjalizacji struktury PID 
+
+`double pidCe(Pid* **pid, double pv)` - po kolei realizujemy konkretne korki algorytmu PID opisane na początku punktu ,,Omówienie i implementacja''. 
+
+## Wyznaczanie nastaw regulatora metodą Zieglera-Nicholsa
+
+Przebieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
 
 1. Implementujemy regulator typu P.
 
@@ -53,17 +121,21 @@ Przbieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
    $$
    T_{u}
    $$
-   ![zieglerkp](Zdjecia\zieglerkp.svg)
+   ![](Zdjecia/zieglerkp.svg)
 
    Po wykonaniu tych punktów uzyskujemy powyższy wykres na którym wyraźnie widać oscylacje niegasnące i niemalejące wyjścia regulatora. Okres oscylacji to czas pomiędzy dwoma sąsiadującymi wierzchołkami lub dołkami. 
 
-3. Używając tabelki wyliczamy parametry K, T__{I}, T_{D}  w zależności od regulatora który chcemy stosować P, PI, PID. My oczywiście wybiermay wzory dla PID.
+3. Używając tabelki wyliczamy parametry $K$, $T_{I}$, $T_{D}$  w zależności od regulatora który chcemy stosować P, PI, PID. My oczywiście wybieramy wzory dla PID.
 
-   ​								 ![TabelaPID](Zdjecia\TabelaPID.PNG)
+Regulator	    $K$		 $T_{I}$		       $T_{D}$  
+---------	----------	-------------	-------------
+P			$0,5K_u$		  --			         --
+PI			$0,45K_u$	$T_u / 1,2$	         --
+PID			$0,6K_u$		$T_u / 2,0$	       $T_u/8$
 
 4. Wyznaczone parametry powinny zapewnić niezłą jakość regulacji, gdy będziemy chcieli spróbować znaleźć lepszy regulator zaczęcie od nastawów wyznaczonych metodą Zieglera-Nicholsa będzie dobrym pomysłem.
 
-   ![ziegler_gotowy](Zdjecia\ziegler_gotowy.svg)
+   ![](Zdjecia/ziegler_gotowy.svg)
 
    Wykres przedstawia przebiegi sygnałów dla nastawów wyliczonych według tabelki. Jeżeli nie sterujemy mocno skomplikowanym obiektem i amplituda zmian wartości zadanej nie jest zbyt duża. To jakość regulacji możemy uznać za satysfakcjonującą. Wyjście obiektu bardzo szybko dochodzi do wartości zadanej i jest stabilne (nie oscyluje). Zmiana wartości sygnału sterującego na początku jest akceptowalna, a w późniejszym czasie (od próbki 60) zmiany mają charakter skoków o nie dużych amplitudach. Jest to wynik zakłóceń i szumów występujących w układzie. 
 
@@ -201,7 +273,7 @@ Ustaliliśmy, że punktem załamania jakości regulacji jest $N = 11$, zatem tę
 
 ## Dobór horyzontu sterowania $N_u$
 
-Wpływ horyzontu sterowania na jakość regulacji nie był duży. Z tego powodu wybraliśmy $N_u = 1$, aby zmniejszyć ilość obliczeń wykonywanych co okres próbkowania regulatora. Decyzja ta nie spowodowała spadku jakości regulacji. Jedyną zmianą było nieznaczne zwiększenie się maksymalnej wartości sygnału sterującego z $376.5$ na $398.2$.
+Wpływ horyzontu sterowania na jakość regulacji nie był duży. Z tego powodu wybraliśmy $N_u = 4$, aby zmniejszyć ilość obliczeń wykonywanych co okres próbkowania regulatora. Decyzja ta nie spowodowała spadku jakości regulacji. Jedyną zmianą było nieznaczne zwiększenie się maksymalnej wartości sygnału sterującego z $376.5$ na $398.2$.
 
 ![](plots/dmc/Nu/Nu_is_4.png){ width=50% }
 ![](plots/dmc/Nu/Nu_is_3.png){ width=50% }
@@ -212,7 +284,7 @@ Wpływ horyzontu sterowania na jakość regulacji nie był duży. Z tego powodu 
 
 ## Dobór kary za zmiany sterowania $\Lambda$
 
-Parametr $\Lambda$ bardzo silnie wpływał na czas regulacji, zgodnie z naszymi oczekiwaniami. Gdy go zwiększaliśmy, czas regulacji rósł. Obiekt z którym mieliśmy do czynienia był obiektem o szybkiej dynamice. Z tego powodu, oraz ponieważ sygnał sterujący z łatwością mieścił się w ograniczeniach, zdecydowaliśmy, że nie będziemy tak mocno ograniczać jego zmian. Ustaliliśmy że najlepszą jakość regulacji nasz regulator daje nam przy $\Lambda = 1$.
+Parametr $\Lambda$ bardzo silnie wpływał na czas regulacji, zgodnie z naszymi oczekiwaniami. Gdy go zwiększaliśmy, czas regulacji rósł. Obiekt z którym mieliśmy do czynienia był obiektem o szybkiej dynamice. Z tego powodu, oraz ponieważ sygnał sterujący z łatwością mieścił się w ograniczeniach, zdecydowaliśmy, że nie będziemy tak mocno ograniczać jego zmian. Ustaliliśmy że najlepszą jakość regulacji nasz regulator daje nam przy $\Lambda = 2$.
 
 ![](plots/dmc/Nu/Nu_is_1.png){ width=50% }
 ![](plots/dmc/Lambda/Lambda_is_2.png){ width=50% }
@@ -242,7 +314,7 @@ Parametry regulacji odczytaliśmy z wykresów za pomocą kursora.
 	Przeregulowanie	Czas regulacji[^1]	Oscylacje[^2]
 ---	---------------	--------------		---------
 PID		11%				13				widoczne
-DMC		0%[^3]			17				niewidoczne
+DMC		0%[^3]			16				niewidoczne
 
 Jak widać z powyższej tabeli, regulator *DMC* zapewnia lepszą jakość regulacji. Przy małym zwiększeniu czasu regulacji względem *PID*, otrzymujemy brak przeregulowania oraz gładkie przebiegi sygnału sterującego oraz wyjścia procesu.
 
