@@ -12,7 +12,7 @@ Postawione przed nami zadanie polegało na zaprojektowaniu regulatora PID i DMC,
 
 Tradycyjnie regulację za pomocą algorytmu PID realizujemy za pomocą trzech członów proporcjonalnego, całkującego i różniczkującego. Człon proporcjonalny powoduje wzrost wartości sterowania wraz z wzrostem uchybu, całkujący zwiększa wartość sygnału sterującego wraz z akumulowanym uchybem, a dla różniczkującego wraz z wzrostem uchybu, wzrasta wartość sygnału sterującego. 
 
-Parametry PID-a zostały w kodzie zaprezentowane jako struktura `Pid`. W pliku `main.c` zadajemy wartości odpowiednim parametrom z struktury PID. Wymagane obliczenia w algorytmie są realizowane za pomocą funkcji `float pidCe(Pid *pid, float pv)`, której argumentami są struktura z wartościami naszego PID-a i zmienna `pv` -- *process value*, czyli naszą wartość zadaną, a funkcja zwraca nam sygnał sterujący. 
+Parametry PID-a zostały w kodzie zaprezentowane jako struktura `Pid`. W pliku `main.c` zadajemy wartości odpowiednim parametrom z struktury PID. Wymagane obliczenia w algorytmie są realizowane za pomocą funkcji `float pidCe(Pid *pid, float pv)`, której argumentami są struktura z wartościami naszego PID-a i zmienna `pv` -- *process value*, czyli naszą wartość zadaną, a funkcja zwraca nam sygnał sterujący.
 
 W każdym wywołaniu funkcji dokonujemy następujących obliczeń: 
 
@@ -25,6 +25,8 @@ W każdym wywołaniu funkcji dokonujemy następujących obliczeń:
 4. Wartość członu różniczkującego $u_{D}(k) = KT_{D}\dfrac{e(k)-e(k-1)}{T}$
 
 5. Następuje zapisanie wartości z stanu $k$ jako wartości dla stanu $k-1$ (w naszym kodzie zmienne z poprzedniego stanu wyrażone są za pomocą przedrostka prev)
+
+### Anti-windup
 
 Oprócz tych kroków do naszego algorytmu zastosowaliśmy rozwiązanie anti-windup. Rozwiązania tego używamy w przypadku gdy zmienna sterowania osiąga wartość graniczną urządzenia wykonawczego i ją przekracza. Wiemy, że nie ma sensu zadawać większej wartości sygnału sterowania niż element wykonawczy jest w stanie zrealizować. Aby uniknąć takich sytuacji stosujemy algorytm, który pomniejsza składową całkującą wartości sterowania o pewną stałą przemnożoną przez różnicę między nasyconą wartością sygnału sterującego, a wartością wyznaczoną przez regulator. Wprowadzamy do członu całkującego dodatkowy element proporcjonalny do różnicy między faktycznym sygnałem sterującym, a oczekiwanym. Równanie takie prezentuje się następująco :
 $$
@@ -121,6 +123,7 @@ Przebieg strojenia regulatora przy użyciu metody Zieglera-Nicholsa
    $$
    T_{u}
    $$
+
    ![](Zdjecia/zieglerkp.svg)
 
    Po wykonaniu tych punktów uzyskujemy powyższy wykres na którym wyraźnie widać oscylacje niegasnące i niemalejące wyjścia regulatora. Okres oscylacji to czas pomiędzy dwoma sąsiadującymi wierzchołkami lub dołkami. 
@@ -133,11 +136,89 @@ P			$0,5K_u$		  --			         --
 PI			$0,45K_u$	$T_u / 1,2$	         --
 PID			$0,6K_u$		$T_u / 2,0$	       $T_u/8$
 
-4. Wyznaczone parametry powinny zapewnić niezłą jakość regulacji, gdy będziemy chcieli spróbować znaleźć lepszy regulator zaczęcie od nastawów wyznaczonych metodą Zieglera-Nicholsa będzie dobrym pomysłem.
+4. Wyznaczone parametry powinny zapewnić niezłą jakość regulacji, gdy będziemy chcieli spróbować znaleźć lepszy regulator zaczęcie od nastaw wyznaczonych metodą Zieglera-Nicholsa będzie dobrym pomysłem.
 
-   ![](Zdjecia/ziegler_gotowy.svg)
+![](Zdjecia/ziegler_gotowy.svg)
 
-   Wykres przedstawia przebiegi sygnałów dla nastawów wyliczonych według tabelki. Jeżeli nie sterujemy mocno skomplikowanym obiektem i amplituda zmian wartości zadanej nie jest zbyt duża. To jakość regulacji możemy uznać za satysfakcjonującą. Wyjście obiektu bardzo szybko dochodzi do wartości zadanej i jest stabilne (nie oscyluje). Zmiana wartości sygnału sterującego na początku jest akceptowalna, a w późniejszym czasie (od próbki 60) zmiany mają charakter skoków o nie dużych amplitudach. Jest to wynik zakłóceń i szumów występujących w układzie. 
+   Wykres przedstawia przebiegi sygnałów dla nastaw wyliczonych według tabelki. Jeżeli nie sterujemy mocno skomplikowanym obiektem i amplituda zmian wartości zadanej nie jest zbyt duża. To jakość regulacji możemy uznać za satysfakcjonującą. Wyjście obiektu bardzo szybko dochodzi do wartości zadanej i jest stabilne (nie oscyluje). Zmiana wartości sygnału sterującego na początku jest akceptowalna, a w późniejszym czasie (od próbki 60) zmiany mają charakter skoków o nie dużych amplitudach. Jest to wynik zakłóceń i szumów występujących w układzie. 
+
+#### Ostatecznie wyznaczone liczbowe wartości nastaw:
+
+----------   ------------------- --------------------
+$K = 16,8$    $T_{i} = 0,1875$    $T_{d} = 0,046875$
+----------   ------------------- --------------------
+
+
+
+## Wyznaczanie nastaw regulatora metodą inżynierską 
+
+Strojenie tą metodą przebiega w następujących krokach:
+
+1. Najpierw wprowadzamy obiektem w skrajnej stabilności przy użyciu regulatora P, tak jak w metodzie Zieglera - Nicholsa. Wyznaczony parametr *K* staję się wzmocnieniem krytycznym: 
+   $$
+   K_{k} = K
+   $$
+
+\newpage
+
+2. Dobieramy nastawy regulatora PI, gdzie: 
+
+$$
+K=0,5K_{k}
+$$
+
+parametr $T_{i}$ dobieramy metodą prób i błędów, najlepiej jest zacząć w okolicach wartości wyznaczonych za pomocą metody Zieglera - Nicholsa.
+
+![](Zdjecia/mardobry1.svg)
+
+Naszym wskaźnikiem jakości było jak najszybsze ustabilizowanie sygnału wokół wartości zadanej przy uwzględnieniu jak najmniejszych amplitud oscylacji. Nasz regulator najlepiej zachowywał się przy wartości 
+$$
+T_{i} = \dfrac{T_{k}}{0,13}
+$$
+Na pierwszy rzut oka widoczne stają się gasnące oscylacje, do ich wyeliminowania metodą prób i błędów będziemy wyznaczali wartość $T_{d}$ dla członu różniczkującego. 
+
+**Uwaga:**  Wartość $T_{k}$ pochodzi z metody Zieglera - Nicholsa, zostawiliśmy ją w kodzie aby łatwiej mnożąc i dzieląc było nam znaleźć odpowiednie wartości dla członów całkującego i różniczkującego. Tak jak opisaliśmy wcześniej, poszukiwania zaczęliśmy od wartości pochodzących z metody Zieglera - Nicholsa. 
+
+3. Dobierając wartość parametru dla członu różniczkującego skupiliśmy się na jak najmocniejszym osłabieniu oscylacji. Udało nam się to osiągnąć dla wartości:
+   $$
+   T_{d} = \dfrac{T_{k}}{5}
+   $$
+
+![](Zdjecia/mar2.svg)
+
+   Powyższy wykres pokazuje przebieg regulacji dla regulatora PID z nastawami dobranymi za pomocą metody inżynierskiej. 
+
+   Możemy zauważyć, że wartość zadana jest osiągana bardzo szybko. Przeregulowanie praktycznie nie występuje, wyjście regulatora osiąga bardzo sprawnie wartość zadaną i jej nie przekracza. Wartości sygnału sterującego nie są gorsze od tych występujących w metodzie Zieglera-Nicholsa. Przy dokładnym porównaniu wykresów jesteśmy w stanie stwierdzić, że sygnał sterujący dla regulatora z metody inżynierskiej jest nawet lepszy, ponieważ  jego amplitudy zdecydowanie maleje już po około 10-15 próbkach. Wahania występujące po tym czasie najprawdopodobniej wynikają z szumów pomiarowych.
+
+## **Porównanie zaprezentowanych wyników obu metod** 
+
+  Po przeprowadzanie eksperymentów przy użyciu obu metod, doszliśmy do następujących wniosków i schematu postępowania podczas dobierania nastaw regulatora PID. 
+
+  Gdy nie mamy wymagającego obiektu do sterowania możemy z pełnym spokojem użyć metody Zieglera - Nicholsa, z dużym prawdopodobieństwem zaspokoi ona nasze potrzeby. Gdy będziemy potrzebowali lepszej regulacji możemy pozmieniać nastawy regulatora stosując się do zasad metody inżynierskiej. Wybieramy wskaźnik jakości według którego potem dobieramy wartości parametrów (na bieżąco sprawdzamy czy po zmianach regulacja uległa polepszeniu). 
+
+  Kiedy będziemy regulowali obiekt o sporym stopniu skomplikowania nasze parametry z dużym prawdopodobieństwem będziemy musieli dobierać za pomocą metody inżynierskiej. Jednak i tak warto zacząć od metody Zieglera - Nicholsa, ponieważ dzięki niej końcowe parametry możemy znaleźć dużo szybciej niż strzelając ,,na ślepo". 
+
+  W przypadku obu metod musimy pamiętać o poważnym ograniczeniu jakim jest wprowadzenie układu w nieustające oscylacje. Jest to raczej zjawisko, którego wolelibyśmy uniknąć dla większości układów wykonawczych. Z tego powodu możemy być zmuszeni do użycia innych metod lub możemy spróbować zamodelować nasz obiekt np. w programie MATLAB i tam wykonać pierwsze kroki obu metod. 
+
+## Zastosowanie ulepszenia algorytmu w postaci użycia *anti - windup*
+
+  W tym punkcie skupimy się na analizie sygnału wyjściowego procesu regulowanego w zależności od parametru $T_{v}$.  
+
+  Podstawy teoretyczne i korzyści płynące z zastosowania rozwiązania *anti - windup* zostały opisane w podpunkcie ,,Omówienie i implementacja".
+
+### $T_{v} = 1,0$
+
+![](Zdjecia/anwin1.svg)
+
+### $T_{v} = 5,0$
+
+![](Zdjecia/anwin2.svg)
+
+### $T_{v} = 0,8$ 
+
+![](Zdjecia/anwin3.svg)
+
+  W celu zobaczenia różnic pomiędzy działaniem regulatora z *anti-windup* i bez ustawiamy *set-point* na bardzo dużą wartość (w okolicach maksimum dla danego obiektu). Na wszystkich trzech wykresach widzimy jak sterowanie jest ucinane dzięki czemu nie przekracza ono ograniczeń: max 2000 i min -2000.  W zależności od parametru $T_{v}$ skracamy czas odcałkowywania. Widzimy, że regulacja najlepiej przebiega dla wartości $T_{v} = 5,0$. Przebieg sygnału wyjścia regulatora powoli, ale dochodzi do wartości zadanej. Dzięki ucinaniu wartości sygnału sterującego jego przebieg zawiera zdecydowanie mniejsze amplitudy, co jest dużo lepsze dla elementów wykonawczych. Dla wartości $T_{v}=1,0$ obserwujemy wyraźne opóźnienie, którego nie możemy zaakceptować, dlatego tą wartość odrzucamy. 
 
 \newpage
 
@@ -170,7 +251,7 @@ Elementy struktury to kolejno:
 Nazwa pola	Standardowe Oznaczenie	Opis
 ----------	----------------------	----
 `ke`			$k_e$					współczynnik przy uchybie w prawie sterowania
-`ku`			$k_u(k - p)$				tablica współczynników przy przeszłych przyrostach sygnału sterującego w prawie sterowania
+`ku`			$k_u(k - p)$				tablica współczynników przy przeszłych przyrostach sygnału sterującego
 `sp`			$y^{zad}$				wartość zadana wyjścia procesu
 `*deltaup`	$\Delta u(k - p)$		tablica przeszłych przyrostów sygnału sterującego
 `uk`			$u(k)$					aktualna wartość sygnału sterującego
