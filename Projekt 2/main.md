@@ -5,7 +5,7 @@
 
 # Zadanie
 
-Postawione przed nami zadanie polegało na stworzeniu regulatora DMC, który miał utrzymywać temperaturę na stanowisku grzejąco-chłodzącym. Głównym celem tego projektu było jednak stworzenie interfejsu operatora z uwzględnieniem dobrych praktyk w projekowaniu HMI oraz reakcją na stany awaryjne.
+Postawione przed nami zadanie polegało na stworzeniu regulatora DMC, który miał utrzymywać temperaturę na stanowisku grzejąco-chłodzącym. Głównym celem tego projektu było jednak stworzenie interfejsu operatora z uwzględnieniem dobrych praktyk w projektowaniu HMI oraz reakcją na stany awaryjne.
 
 \newpage
 
@@ -27,7 +27,7 @@ zakłócenia (wej. niesterowane)  prędkość kątowa łopatek wentylatora W1  n
 
 # Odpowiedź skokowa
 
-Regulator DMC używa modelu obiektu w postaci odpowiedzi skokowej. Jest to odpowiedź obiektu na skok sygnału sterującego równy +1. Aby ją uzyskać, w stanie ustalonym, zwiększyliśmy wartość sygnału sterującego obiektem z $-20$ na $30$ i zarejestrowaliśmy próbki wartości wyjścia obiektu wraz z wartością sygnału sterującego w celu rozstzygnięcia chwili skoku w późniejszej analizie. Eksperyment ten powtórzyliśmy w celu weryfikacji otrzymanych wyników.
+Regulator DMC używa modelu obiektu w postaci odpowiedzi skokowej. Jest to odpowiedź obiektu na skok sygnału sterującego równy +1. Aby ją uzyskać, w stanie ustalonym, zwiększyliśmy wartość sygnału sterującego obiektem z $-20$ na $30$ i zarejestrowaliśmy próbki wartości wyjścia obiektu wraz z wartością sygnału sterującego w celu rozstrzygnięcia chwili skoku w późniejszej analizie. Eksperyment ten powtórzyliśmy w celu weryfikacji otrzymanych wyników.
 
 Następnie ze wszystkich próbek wybraliśmy te, które zostały zarejestrowane po skoku sygnały sterującego. Pierwsza rozpatrywana próbka była następną po skoku.
 
@@ -37,7 +37,7 @@ Kolejnym krokiem była normalizacja odpowiedzi obiektu. Próbki wyjścia procesu
 
 ![Odpowiedź skokowa (po normalizacji)](Zdjęcia do sprawka/stepresp.png){ width=75% }
 
-Do dalszych rozważań wybraliśmy odpowiedź z eksperymentu pierwszego, ponieważ nie zawuważyliśmy istotnych różnic między wynikami obydwu eksperymentów.
+Do dalszych rozważań wybraliśmy odpowiedź z eksperymentu pierwszego, ponieważ nie zauważyliśmy istotnych różnic między wynikami obydwu eksperymentów.
 
 # Algorytm DMC
 
@@ -53,7 +53,7 @@ $$
 
 Naszym kolejnym krokiem było wyznaczenie współczynników prawa regulacji za pomocą skryptu udostępnionego przez dr. Piotra Marusaka.
 
-Implementacja samego regulatora została przeniesiona z poprzedniego projektu z jedną modyfikacją. Tym razem zastosowaliśmy *informowanie* regulatora o ograniczeniu wartośći sygnału sterującego. *Informowanie* to polega na dopisywaniu do wektora przeszłych przyrostów syngnału steującego delty takiej, która nie pozwoli temu sygnałowi przekroczyć ograniczeń, a nie delty wynikającej wprost z prawa regulacji. Zapobiega to tzw. *nacałkowywaniu* się regulatora w sytuacjach anormalnych. Zostało to zrealizowane w następujący sposób
+Implementacja samego regulatora została przeniesiona z poprzedniego projektu z jedną modyfikacją. Tym razem zastosowaliśmy *informowanie* regulatora o ograniczeniu wartości sygnału sterującego. *Informowanie* to polega na dopisywaniu do wektora przeszłych przyrostów sygnału sterującego delty takiej, która nie pozwoli temu sygnałowi przekroczyć ograniczeń, a nie delty wynikającej wprost z prawa regulacji. Zapobiega to nadmiernej akumulacji wartości sygnału sterującego w sytuacjach anormalnych. Zostało to zrealizowane w następujący sposób
 ```c
 // Wylicz deltauk z prawa regulacji i przesuń bufor dmc->deltaup w prawo
 // ...
@@ -68,58 +68,66 @@ dmc->uk += dmc->deltaup[0];
 // ...
 ```
 
+Nie zarejestrowaliśmy odpowiedzi układu regulacji na skok wartości zadanej z powodu niewystarczającej ilości czasu na wykonanie zadania, natomiast regulator działał prawidłowo podczas pokazu działania urządzenia prowadzącemu laboratorium.
+
 # Interfejs operatora
 
 ![Regulator w trakcie normalnej pracy\label{regnorm}](Zdjęcia do sprawka/IMG_0591.JPG){ width=75% }
 
 Zaprezentowany na rysunku \ref{regnorm} interfejs operatora przedstawia domyślny tryb pracy urządzenia tzn. bez pojawienia się sytuacji nadzwyczajnych.
 
-Na prawo od okna o alarmach znajduje się miejsce na wyświetlanie wartości zadanej temperatury. Jej wartość jest pokazywana pod napisem ,,Setpoint''. Poniżej tej wartości jest przycisk "A/M", którego naciśnięcie powoduje zmianę trybu pracy z automatycznego na manualny i odwrotnie. 
+Konsekwentnie, kolor zielony symbolizuje wyjście obiektu, natomiast kolor niebieski -- sygnał sterujący.
 
-Prezentowana w ten sposób są czytelne na pierwszy rzut oka, co jest bardzo ważne przy projektowaniu paneli w systemach SCADA. Operator może kontrolować i analizować przebiegi angażując w to zadanie minimum wysiłku. W każdej chwili jest w stanie odczytać dokładny stan systemu. Dane są prezentowane największą możliwą czcionką pozwalającą na rozsądne rozmieszczenie reszty elementów. Dzięki tym zabiegom wyświetlacz jest również czytelny z dalszych odległości. Realizacja zmiany wartości zadanej została tak zaprojektowana, aby jak najbardziej ułatwić zadanie operatorowi.
+Operator może kontrolować i analizować przebiegi angażując w to zadanie minimum wysiłku. W każdej chwili jest w stanie odczytać dokładny stan systemu. Dane są prezentowane największą możliwą czcionką pozwalającą na rozsądne rozmieszczenie reszty elementów. Dzięki tym zabiegom wyświetlacz jest również czytelny z dalszych odległości. Realizacja zmiany wartości zadanej została tak zaprojektowana, aby jak najbardziej ułatwić zadanie operatorowi.
 
 ## Kontekst
 
-Poniżej znajdują się oznaczenia elementów układu regulacji (oznaczenia G1, W1, T1). 
+Kwadraty opisane G1, W1, T1 w sposób symboliczny przedstawiają obiekt.
 
 ## Wizualizacje
 
-W lewym dolnym rogu znajdują się dwa słupki, które prezentują graficznie aktualne wartości temperatury (kolor zielony) i wartości sterowania (kolor niebieski). Przy czym skala dla temperatury wynosi 30 C do 60 C, a sterowania -50 do 50. Zaraz obok słupków jest prezentowana liczbowo aktualna wartość temperatury (zielony) i sterowania (niebieski).
+W prawym dolnym rogu jest prezentowany trend sygnału sterującego, wyjścia obiektu i wartości zadanej. Na osi pionowej zostały zaprezentowane dwie osobne skale dla tych wartości. Dla wyjścia wynosi ona od $30\;\text{\textdegree}C$ do $60\;\text{\textdegree}C$, a dla sterowania od $-50\;\%$ do $+50\;\%$.
 
-W prawym dolnym rogu są prezentowane przebiegi sygnałów sterującego, aktualna wartość temperatury i wartość zadana temperatury. Na osi pionowej zostały zaprezentowane dwie osobne skale dla tych wartości. 
+W lewym dolnym rogu znajdują się dwa słupki, które prezentują aktualną wartość wyjścia obiektu i wartość sygnału sterującego. Ich skala jest zgodna z wykresem.
 
 ## Stan układu regulacji
 
-
+Obok słupków prezentowana jest aktualna wartość wyjścia obiektu i sygnału sterującego. Wartość zadana pokazywana jest pod napisem ,,*Setpoint*''.
 
 ## Ingerencja operatora
 
-W prawym górnym rogu znajdują się przyciski do zwiększania wartości zadanej (Setpoint). Zostały one przemyślane następująco. Zmiana wartości o 1 w górę lub w dół jest realizowana za pomocą dużych przycisków, ponieważ chcieliśmy umożliwić operatorowi łatwiejsze dobieranie dokładnej wartości. Zakładamy, że zmiany o małe wartości będą częstsze dzięki czemu duży przycisk ułatwi mu pracę. Mniejsze przyciski służą do zmiany o 10 w górę lub w dół. Zmiana ta będzie zgrubna czyli wiemy, że nie będzie to od razu oczekiwana dokładna wartość, dlatego następnie w dużej mierze operator będzie dobierał dokładniejszą wartość za pomocą dużych przycisków. Dobrana w ten sposób funkcjonalność przycisków miała na celu zapewnienie lepszej interakcji z operatorem.
+Naciśnięcie przycisku "A/M" powoduje zmianę trybu pracy z automatycznego na ręczny i odwrotnie. W trybie automatycznym, pod napisem *Setpoint*, wyświetlana jest aktualna wartość zadana. W trybie ręcznym napis *Setpoint* zastępuje napis *Ctl. ef.*, a pod nim wyświetlana jest ustawiona wartość sygnału sterującego.
+
+W prawym górnym rogu znajdują się przyciski służące do manipulacji opisanymi wyżej parametrami. Zostały one przemyślane następująco. Zmiana wartości o 1 w górę lub w dół jest realizowana za pomocą dużych przycisków, ponieważ łatwiejsze do naciśnięcia przyciski powinny realizować akcje mające mniejsze skutki aby zmniejszyć prawdopodobieństwo przypadkowego wykonania drastycznej akcji. Zakładamy również, że zmiany o małe wartości będą częstsze dzięki czemu duży przycisk ułatwi pracę. Mniejsze przyciski służą do zmiany o 10 w górę lub w dół. Zmiana ta będzie zgrubna czyli wiemy, że nie będzie to od razu oczekiwana dokładna wartość, dlatego następnie w dużej mierze operator będzie dobierał dokładniejszą wartość za pomocą dużych przycisków. Dobrana w ten sposób funkcjonalność przycisków miała na celu zapewnienie sprawniejszej interakcji z operatorem.
 
 ## Sytuacje awaryjne
 
-Górne lewe okno zarezerwowane jest do wyświetlania komunikatów alarmowych. Informacja o alarmie pojawi się w przypadku wystąpienia problemu z połączeniem do stanowiska lub przekroczeniem temperatury. Komunikat jest prezentowany w formie dużego, czerwonego, dobrze widocznego tekstu. Szczegółowe omówienie wyświetlania i obsługi sytuacji alarmowych są omówione w następnych punktach. 
-
 ### Błąd z komunikacją
 
-Doszliśmy do wniosku, że komunikacja z stanowiskiem i regulatorem jest dla nas rzeczą najważniejszą. Z tego powodu alarm informujący o utracie połączenia powinien dawać jasny komunikat i w dobitny sposób informować o problemie. Na naszym panelu taka sytuacja wygląda tak:
+Pod wpływem sugestii prowadzącego laboratorium zdecydowaliśmy, że komunikacja z obiektem jest bardzo istotna. Z tego powodu komunikat informujący o utracie połączenia powinien w dobitny sposób informować o problemie. Na naszym panelu taka sytuacja wygląda tak:
 
-![IMG_0586](Zdjęcia do sprawka/IMG_0586.JPG){ width=75% }
+![Błąd komunikacji ze stanowiskiem](Zdjęcia do sprawka/IMG_0586.JPG){ width=75% }
 
-Ekran staje się cały czerwony z białym komunikatem. Informacja o tej sytuacji nie znika nawet po przywróceniu połączenia. Dopiero ingerencja operatora (reset mikrokontrolera) powoduje zniknięcie komunikatu i powrót do normalnej pracy. Na zdjęciu widoczny jest również problem, który napotkaliśmy podczas implementacji ekranu błędu. Procedura realizacji przerwania przepełnienia jednego z liczników nie przestaje wypisywać na ekran wartości zadanej. Z powodu braku czasu, nie udało nam się tego naprawić.
+Ekran staje się cały czerwony z białym komunikatem. Informacja o tej sytuacji nie znika nawet po przywróceniu połączenia. Dopiero ingerencja operatora (reset mikrokontrolera) powoduje zniknięcie komunikatu i powrót do normalnej pracy. Na zdjęciu widoczny jest również problem, który napotkaliśmy podczas implementacji ekranu błędu. Procedura realizacji przerwania przepełnienia jednego z liczników nie przestaje wypisywać na ekran wartości zadanej. Z powodu braku czasu, nie udało nam się tego naprawić. Nie jest to jednak dużym problemem, gdyż czerwony ekran jest dobrze widoczny z daleka i natychmiast przykuwa uwagę.
 
 ### Błąd czujnika temperatury
 
-Następny alarm informuje o odebraniu błędnych danych z czujnika temperatury. Taka sytuacja może okazać się bardzo groźna, ponieważ nie mamy informacji stanie obiektu. Gdy przekroczymy górne limity temperatur to może dojść do niebezpiecznych sytuacji jak np. stopienie rdzenia w reaktorze jądrowym, albo uszkodzenie grzałki lub eksplozji gazów w cementowni. Jeżeli zejdziemy poniżej temperatury wymaganej do prawidłowej realizacji procesu narazimy właścicieli fabryki na duże straty i kary od organów kontrolnych. Z tych względów aktualna informacja o temperaturze jest nam bardzo potrzebna.
+Uwzględniliśmy sytuację, w której dane odebrane z czujnika temperatury mogą być błędne tzn. odczytano temperaturę, która nie mieści się w zakresie mierzalnym przez czujnik. Taka sytuacja może okazać się bardzo groźna, ponieważ podczas jej występowania nie mamy informacji stanie obiektu. Gdy przekroczymy górne limity temperatur to może dojść do niebezpiecznej sytuacji. Jeżeli zejdziemy poniżej temperatury wymaganej do prawidłowej realizacji procesu możemy narazić właścicieli fabryki na duże straty.
 
 Wiadomość o błędzie jest wyświetlana w lewym górnym prostokącie za pomocą dużej, wyraźnej, czerwonej czcionki.
 
-![IMG_0592](Zdjęcia do sprawka/IMG_0592.JPG){ width=75% }
+![Błąd czujnika temperatury\label{probeerr}](Zdjęcia do sprawka/IMG_0592.JPG){ width=75% }
 
-Jak widzimy komunikat zajmuje 1/4 wyświetlacza co daje jasny sygnał dla operatora, że podczas działania urządzenia pojawił się problem. Napis ,,Temperature sensor error'' zwraca uwagę operatora na fakt, iż nie można polegać na temperaturze odebranej z czujnika. Poziom błędu uznaliśmy za wysoki, dlatego po przywróceniu komunikacji z czujnikiem operator musi ją zatwierdzić (reset mikrokontrolera) w celu usunięciu informacji o błędzie. 
+Napis *Temperature sensor error* zwraca uwagę operatora na fakt, iż nie można polegać na temperaturze odebranej z czujnika. Priorytet błędu uznaliśmy za wysoki, dlatego po przywróceniu komunikacji z czujnikiem operator musi ją zatwierdzić (reset mikrokontrolera) w celu usunięcia tego komunikatu. 
+
+Podczas oglądania zdjęć zauważyliśmy problem, którego nie zauważyliśmy podczas testowania interfejsu. Aktualna wartość temperatury powinna być ukryta w sytuacji, gdy nie można na niej polegać. Pozwoliłoby to uniknąć problemu widocznego na zdjęciu \ref{tempwarn}, gdzie najmniej znacząca cyfra pochodzi z chwili, w której zostało wykonane zdjęcie \ref{probeerr}.
 
 ## Alarmy
 
-Ostatnim obsługiwanym alarmem jest sygnał o zbyt dużej lub zbyt małej temperaturze na grzałce. Ma to zapobiec nieprawidłowemu przebiegowi procesu. Wiadomość o takiej sytuacji pojawia się w prostokącie w lewym górnym rogu. Czerwony komunikat przekazuje klarowną informację o tym co zadziało się na stanowisku. Po powrocie temperatury do akceptowalnej wartości komunikat znika co świadczy o prawidłowym funkcjonowaniu obiektu.
+Ostatnią obsługiwaną sytuacją nadzwyczajną jest zbyt duża lub zbyt mała temperatura (przekracza $60\;\text{\textdegree}C$ lub jest poniżej $30\;\text{\textdegree}C$). Ma to zapobiec nieprawidłowemu przebiegowi procesu. Wiadomość o takiej sytuacji pojawia się w prostokącie w lewym górnym rogu. Czerwony komunikat przekazuje klarowną informację o tym co dzieje się na stanowisku. Po powrocie temperatury do akceptowalnej wartości komunikat nie znika i wymaga potwierdzenia.
 
-![IMG_0593](Zdjęcia do sprawka/IMG_0593.JPG){ width=75% }
+![Ostrzeżenie przed zbyt dużą lub zbyt małą temperaturą\label{tempwarn}](Zdjęcia do sprawka/IMG_0593.JPG){ width=75% }
+
+# Wnioski
+
+Zaprojektowanie dobrego interfejsu operatora nie jest łatwe i wymaga wiedzy z wielu dziedzin. Wymaga również czasu na testowanie i eliminację błędów. Nie dysponowaliśmy wystarczającą ilością czasu aby w sposób satysfakcjonujący wykonać powierzone nam zadanie, natomiast opuściliśmy laboratorium z działającym prototypem, który umożliwiał interakcję z obiektem.
